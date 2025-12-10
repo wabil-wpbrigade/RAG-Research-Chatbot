@@ -1,0 +1,27 @@
+# Environment variables
+.env
+.env.*
+*.env
+
+# Python virtual environment
+venv/
+.venv/
+
+# Byte-compiled / cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# System files
+.DS_Store
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Cursor backup files
+*.cursor-backup
