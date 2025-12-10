@@ -19,14 +19,11 @@ if question:
     if not sources:
         st.write("No relevant documents were used.")
     else:
-        seen = set()
+        seen_titles = set()
         for doc in sources:
-            md = getattr(doc, "metadata", {}) or {}
-            key = (md.get("source"), md.get("page"))
-
-            if key in seen:
+            title = format_source(doc)
+            if title in seen_titles:
                 continue  # skip duplicates
-            seen.add(key)
-
-            st.write("-", format_source(doc))
+            seen_titles.add(title)
+            st.write("-", title)
 
