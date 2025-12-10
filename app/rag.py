@@ -67,7 +67,7 @@ def context_documents_retrieval_chain(llm,prompt):
 
 
 #final rag chain
-def get_rag_chain(top_k: int = 6):
+def get_rag_chain(top_k: int = 10):
     retriever=retriever_database(top_k=top_k)
     document_chain=context_documents_retrieval_chain(llm,prompt)
     rag_chain=create_retrieval_chain(
@@ -82,7 +82,7 @@ def get_rag_chain(top_k: int = 6):
 #final_answer_question
 FALLBACK_MESSAGE = "I couldn't find this information in the provided documents."
 
-def answer_question(question: str, top_k: int = 6):
+def answer_question(question: str, top_k: int = 10):
     rag_chain = get_rag_chain(top_k=top_k)
     result = rag_chain.invoke({"input": question})
 
@@ -102,9 +102,12 @@ def format_source(doc):
     """Format a single Document's metadata into a human-friendly string."""
     md = doc.metadata or {}
 
-    # File name only (no full path)
-    source_path = md.get("source", "unknown file")
-    filename = os.path.basename(source_path) if source_path else "unknown file"
+    # Prefer the extracted paper title
+    title = md.get("paper_title")
+    if not title:
+        # Fallback to filename if no title present
+        source_path = md.get("source", md.get("filename", "unknown file"))
+        title = os.path.splitext(os.path.basename(source_path))[0]
 
     # Page info (prefer human page label if available)
     page_label = md.get("page_label")
@@ -112,7 +115,6 @@ def format_source(doc):
     if page_label is not None:
         page_str = f"page {page_label}"
     elif page is not None:
-        # page index is often 0-based, so add 1 if you want
         page_str = f"page {page + 1}"
     else:
         page_str = "page ?"
@@ -124,9 +126,9 @@ def format_source(doc):
     else:
         author_str = None
 
-    parts = [filename, page_str]
+    parts = [title, page_str]
     if author_str:
         parts.append(author_str)
 
-    # Join parts like: "file.pdf – page 3 – by Hassan"
+    # e.g. "Blood Group Prediction Using Deep Learning – page 3 – by Hassan"
     return " – ".join(parts)

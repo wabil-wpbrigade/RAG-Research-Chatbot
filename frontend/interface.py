@@ -5,7 +5,7 @@ sys.path.append(ROOT_DIR)
 from app.rag import answer_question, format_source
 import streamlit as st
 
-st.title("📘 Research Paper RAG ChatBot")
+st.title("📘 Research RAG ChatBot")
 
 question = st.text_input("What would you like to know about your documents?")
 

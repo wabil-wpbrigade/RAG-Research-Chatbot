@@ -15,13 +15,35 @@ from .config import files_folder_path, vector_database_path
 
 #load all the pdf files in the folder
 def load_pdf_files(files_folder_path):
-    All_pdf_files = []
-    for files in os.listdir(files_folder_path):
-        if files.endswith(".pdf"):
-            loader = PyPDFLoader(os.path.join(files_folder_path, files))
-            documents = loader.load()
-            All_pdf_files.extend(documents)
-    return All_pdf_files
+    all_docs = []
+    for filename in os.listdir(files_folder_path):
+        if not filename.lower().endswith(".pdf"):
+            continue
+
+        pdf_path = os.path.join(files_folder_path, filename)
+        loader = PyPDFLoader(pdf_path)
+        pages = loader.load()  # list[Document]
+
+        if not pages:
+            continue
+
+        # Try to use first non-empty line of first page as "title"
+        first_page_text = pages[0].page_content or ""
+        lines = [line.strip() for line in first_page_text.split("\n") if line.strip()]
+        if lines:
+            paper_title = lines[0][:200]  # avoid super long titles
+        else:
+            paper_title = os.path.splitext(filename)[0]
+
+        # Attach metadata to every page
+        for p in pages:
+            p.metadata["paper_title"] = paper_title
+            p.metadata["filename"] = filename  # optional, fallback
+
+        all_docs.extend(pages)
+
+    return all_docs
+
 
 
 
