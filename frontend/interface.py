@@ -1,9 +1,12 @@
-import sys, os
+import os
+import sys
+
+import streamlit as st
+
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(ROOT_DIR)
 
-from app.rag import answer_question, format_source
-import streamlit as st
+from app.rag import answer_question, format_source  # noqa: E402
 
 st.title("📘 Research RAG ChatBot")
 

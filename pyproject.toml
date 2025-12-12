@@ -1,0 +1,40 @@
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+# Enable the core Ruff rules
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "W",   # warnings
+    "I",   # import sorting (isort)
+    "B",   # bugbear
+    "C4",  # comprehensions
+]
+
+ignore = [
+    "E501",  # line length (handled by Black)
+]
+
+# Ruff will fix most issues automatically
+fix = true
+
+# Use Ruff as a formatter (optional)
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+# Black configuration (if you still use Black separately)
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+# Mypy config
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+warn_return_any = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

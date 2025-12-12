@@ -7,3 +7,11 @@ langchain-openai
 langchain-chroma
 langchain-core
 streamlit
+black
+isort
+ruff
+pre-commit
+mypy
+pytest
+pylint
+python-dotenv
