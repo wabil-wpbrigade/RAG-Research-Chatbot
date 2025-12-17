@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./backend
+    container_name: rag-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./vector_database:/app/vector_database
+      - ./backend/app/data:/app/app/data
+
+  frontend:
+    build: ./frontend
+    container_name: rag-frontend
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend

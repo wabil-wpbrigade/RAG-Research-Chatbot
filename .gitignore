@@ -1,27 +1,69 @@
+# ======================
 # Environment variables
+# ======================
 .env
 .env.*
 *.env
 
-# Python virtual environment
+# ======================
+# Python virtual env
+# ======================
 venv/
 .venv/
 
-# Byte-compiled / cache files
+# ======================
+# Python cache
+# ======================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# System files
-.DS_Store
+# ======================
+# Databases
+# ======================
+*.db
+backend/app/data/*.db
 
-# IDE/editor files
-.vscode/
-.idea/
+# ======================
+# Vector stores / embeddings
+# ======================
+vector_database/
+chroma/
+faiss_index/
 
+# ======================
 # Logs
+# ======================
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Cursor backup files
+# ======================
+# Frontend
+# ======================
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# ======================
+# Editor / OS
+# ======================
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ======================
+# Cursor
+# ======================
 *.cursor-backup

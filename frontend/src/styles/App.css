@@ -1,0 +1,127 @@
+/* Background */
+.app-bg {
+    min-height: 100vh;
+    background: #0f172a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e5e7eb;
+}
+
+/* Main card */
+.app-card {
+    width: 900px;
+    background: #020617;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.muted {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Sections */
+.section {
+    margin-top: 24px;
+}
+
+.divider {
+    margin: 32px 0;
+    border-color: #1e293b;
+}
+
+/* Inputs */
+.input {
+    width: 100%;
+    background: #020617;
+    border: 1px solid #1e293b;
+    color: #e5e7eb;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+.primary-btn {
+    background: #22c55e;
+    border: none;
+    color: black;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 1px solid #475569;
+    color: #e5e7eb;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.logout-btn {
+    background: #ef4444;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+/* Answer */
+.answer-box {
+    margin-top: 16px;
+    background: #020617;
+    border: 1px solid #1e293b;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+/* Table */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.user-table th,
+.user-table td {
+    border-bottom: 1px solid #1e293b;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Center helper */
+.center {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tab {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #eee;
+    cursor: pointer;
+}
+
+.tab.active {
+    background: #4f46e5;
+    color: white;
+}
