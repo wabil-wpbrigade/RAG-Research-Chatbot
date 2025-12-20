@@ -39,7 +39,6 @@ def get_rag_chain(top_k: int = 8) -> Any:
     rag_chain = create_retrieval_chain(retriever=retriever, combine_docs_chain=document_chain)
     return rag_chain
 
-
 def answer_question(question: str, top_k: int = 8) -> Tuple[str, List[Document]]:
     """
     -Loads: Retrieval chain
@@ -55,7 +54,7 @@ def answer_question(question: str, top_k: int = 8) -> Tuple[str, List[Document]]
 
     # If the model hit our fallback message, hide sources
     if answer.startswith(
-        "I couldn't find information about that in the documents you provided"):
+        "This question is not covered by the provided documents, so the following answer is based on general knowledge."):
         source_docs = []
 
     return answer, source_docs

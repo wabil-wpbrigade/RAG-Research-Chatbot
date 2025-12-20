@@ -94,6 +94,9 @@ export async function queryRag(question) {
     return res.json();
 }
 
+
+/* ---------------- NEW_USER ---------------- */
+
 export async function signup(name, email, password) {
     const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
@@ -130,3 +133,40 @@ export async function createUser(name, email, password, isAdmin) {
     return res.json();
 }
 
+
+
+/* ---------------- MAGIC-LINK ---------------- */
+
+export async function requestMagicLink(email) {
+    const res = await fetch(`${API_URL}/auth/magic/request`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "Failed to send magic link");
+    }
+
+    return await res.json();
+}
+
+export async function verifyMagicLink(token) {
+    const res = await fetch(`${API_URL}/auth/magic/verify`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+    });
+
+    if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || "Magic link verification failed");
+    }
+
+    return await res.json(); // returns JWT
+}

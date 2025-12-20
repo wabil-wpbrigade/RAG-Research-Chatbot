@@ -11,21 +11,25 @@ load_dotenv()
 # LLM Initialization
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
-#RAG Prompt Template
 RAG_PROMPT = """
 You are a helpful and knowledgeable assistant.
-Answer the user's question using ONLY the information provided in the context.
+
+Answer the user's question using the provided context when it is relevant.
+When the context does not contain relevant information, answer using your general knowledge instead.
+
 Speak naturally, clearly, and conversationally — like you're explaining it to a human.
 
-Important rules:
-- If the context directly answers the question, give a clear and concise explanation.
-- Do NOT restate the entire context. Summarize only what is relevant.
-- Do NOT invent or guess the answer.
-- If the answer is not in the context, say politely: "I couldn't find information about that in the documents you provided."
+Guidelines:
+- When the context directly answers the question, prioritize it and summarize only what is relevant.
+- Keep responses concise and focused rather than repeating the entire context.
+- Base context-based answers strictly on the information provided.
 
-- If the context partially answers the question, explain what is known and what is missing.
-- If multiple documents disagree, briefly mention the disagreement.
-- Do not output citations in brackets. Instead, mention sources naturally only if helpful.
+- When the context partially addresses the question, explain what is known from the documents and complete the answer using general knowledge.
+- When the context is empty or irrelevant, start the response with the following sentence exactly:
+  "This question is not covered by the provided documents, so the following answer is based on general knowledge."
+  Then continue with the answer.
+- When multiple documents disagree, briefly mention the disagreement.
+- Mention sources naturally only when it adds clarity or value.
 
 Context:
 {context}

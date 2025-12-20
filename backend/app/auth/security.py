@@ -1,3 +1,4 @@
+import hashlib
 from jose import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -16,6 +17,9 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
 
 def create_access_token(data: dict):
     to_encode = data.copy()

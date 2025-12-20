@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import { getMe } from "./api/api";
 import Login from "./pages/Login";
+import MagicLogin from "./pages/MagicLogin";
 import AdminDashboard from "./components/AdminDashboard";
 import RagChat from "./components/RagChat";
 import "./styles/App.css";
@@ -8,8 +10,10 @@ import "./styles/App.css";
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("chat"); // chat | admin
+  const [activeTab, setActiveTab] = useState("chat");
 
+
+  // Restore user session from stored token
   async function loadUser() {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -28,6 +32,8 @@ function App() {
     }
   }
 
+  // Clear session and log out
+
   function logout() {
     localStorage.removeItem("token");
     setUser(null);
@@ -39,53 +45,62 @@ function App() {
 
   if (loading) return <div className="center">Loading…</div>;
 
-  if (!user) {
-    return (
-      <div className="center">
-        <Login onLogin={loadUser} />
-      </div>
-    );
-  }
-
   return (
-    <div className="app-bg">
-      <div className="app-card">
-        <header className="app-header">
-          <div>
-            <h2>Research Assistant</h2>
-            <p className="muted">{user.email}</p>
-          </div>
-          <button className="logout-btn" onClick={logout}>
-            Logout
-          </button>
-        </header>
+    <Routes>
+      {/* Magic link verification */}
+      <Route path="/auth/magic" element={<MagicLogin />} />
 
-        {/* Tabs */}
-        <div className="tabs">
-          <button
-            className={`tab ${activeTab === "chat" ? "active" : ""}`}
-            onClick={() => setActiveTab("chat")}
-          >
-            Chat
-          </button>
+      {/* Main app */}
+      <Route
+        path="/"
+        element={
+          !user ? (
+            <div className="center">
+              <Login onLogin={loadUser} />
+            </div>
+          ) : (
+            <div className="app-bg">
+              <div className="app-card">
+                <header className="app-header">
+                  <div>
+                    <h2>Research Assistant</h2>
+                    <p className="muted">{user.email}</p>
+                  </div>
+                  <button className="logout-btn" onClick={logout}>
+                    Logout
+                  </button>
+                </header>
 
-          {user.is_admin && (
-            <button
-              className={`tab ${activeTab === "admin" ? "active" : ""}`}
-              onClick={() => setActiveTab("admin")}
-            >
-              Admin
-            </button>
-          )}
-        </div>
+                <div className="tabs">
+                  <button
+                    className={`tab ${activeTab === "chat" ? "active" : ""}`}
+                    onClick={() => setActiveTab("chat")}
+                  >
+                    Chat
+                  </button>
 
-        {/* Tab Content */}
-        <section className="section">
-          {activeTab === "chat" && <RagChat />}
-          {activeTab === "admin" && user.is_admin && <AdminDashboard />}
-        </section>
-      </div>
-    </div>
+                  {user.is_admin && (
+                    <button
+                      className={`tab ${activeTab === "admin" ? "active" : ""}`}
+                      onClick={() => setActiveTab("admin")}
+                    >
+                      Admin
+                    </button>
+                  )}
+                </div>
+
+                <section className="section">
+                  {activeTab === "chat" && <RagChat />}
+                  {activeTab === "admin" && user.is_admin && (
+                    <AdminDashboard />
+                  )}
+                </section>
+              </div>
+            </div>
+          )
+        }
+      />
+    </Routes>
   );
 }
 
