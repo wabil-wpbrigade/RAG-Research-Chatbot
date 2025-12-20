@@ -48,13 +48,9 @@ def answer_question(question: str, top_k: int = 8) -> Tuple[str, List[Document]]
     """
     rag_chain = get_rag_chain(top_k=top_k)
     result = rag_chain.invoke({"input": question})
-
     answer = result.get("answer", "").strip()
     source_docs = result.get("context", [])
-
-    # If the model hit our fallback message, hide sources
-    if answer.startswith(
-        "This question is not covered by the provided documents, so the following answer is based on general knowledge."):
+    if answer.startswith("This question is not covered by the provided documents, so the following answer is based on general knowledge."):
         source_docs = []
 
     return answer, source_docs

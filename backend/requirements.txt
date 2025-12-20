@@ -22,3 +22,5 @@ datetime
 python-jose
 pydantic
 pydantic[email]
+pyyaml 
+jinja2

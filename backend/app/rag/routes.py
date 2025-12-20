@@ -7,18 +7,16 @@ from app.rag.schemas import RAGQueryRequest
 router = APIRouter(prefix="/rag", tags=["rag"])
 
 
+def format_sources(docs):
+    return [
+        {"content": doc.page_content, "metadata": doc.metadata}
+        for doc in docs
+    ]
+
+
 @router.post("/query")
 def query_rag(
     data: RAGQueryRequest,
     current_user: User = Depends(require_active_user),):
     answer, sources = adaptive_rag_controller.run(data.question)
-    return {
-        "answer": answer,
-        "sources": [
-            {
-                "content": doc.page_content,
-                "metadata": doc.metadata,
-            }
-            for doc in sources
-        ],
-    }
+    return {"answer": answer, "sources": format_sources(sources)}
