@@ -11,7 +11,11 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
 
-    // Create user form
+    // 🔹 Filter state
+    const [statusFilter, setStatusFilter] = useState("all");
+    // "all" | "active" | "inactive"
+
+    // 🔹 Create user form
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -68,29 +72,38 @@ export default function AdminDashboard() {
         loadCurrentUser();
     }, []);
 
+    // 🔹 Apply filter
+    const filteredUsers = users.filter((u) => {
+        if (statusFilter === "active") return u.is_active;
+        if (statusFilter === "inactive") return !u.is_active;
+        return true;
+    });
+
     return (
         <div className="admin-container">
             <h2>Admin Dashboard</h2>
 
-            {/* 🔹 CREATE USER */}
             <form className="create-user-card" onSubmit={handleCreate}>
                 <h3>Create User</h3>
+                <p className="card-subtitle">Add a new user to the system</p>
 
                 {error && <p className="error">{error}</p>}
 
-                <input
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                />
+                <div className="form-grid">
+                    <input
+                        placeholder="Full Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
 
-                <input
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
+                    <input
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
 
                 <input
                     type="password"
@@ -100,8 +113,10 @@ export default function AdminDashboard() {
                     required
                 />
 
-                <div className="radio-group">
-                    <label>
+                <div className="role-selector">
+                    <span className="role-label">Role</span>
+
+                    <label className={!isAdmin ? "active" : ""}>
                         <input
                             type="radio"
                             name="role"
@@ -111,7 +126,7 @@ export default function AdminDashboard() {
                         User
                     </label>
 
-                    <label>
+                    <label className={isAdmin ? "active" : ""}>
                         <input
                             type="radio"
                             name="role"
@@ -122,13 +137,48 @@ export default function AdminDashboard() {
                     </label>
                 </div>
 
-                <button type="submit">Create</button>
+                <button type="submit" className="primary">
+                    Create User
+                </button>
             </form>
-
             {/* 🔹 USER TABLE */}
             <div className="table-card">
                 <h3>Users</h3>
 
+                {/* 🔹 Status Filter */}
+                <div className="filter-bar">
+                    <span className="filter-label">Status:</span>
+
+                    <label className={statusFilter === "all" ? "active" : ""}>
+                        <input
+                            type="radio"
+                            name="statusFilter"
+                            checked={statusFilter === "all"}
+                            onChange={() => setStatusFilter("all")}
+                        />
+                        All
+                    </label>
+
+                    <label className={statusFilter === "active" ? "active" : ""}>
+                        <input
+                            type="radio"
+                            name="statusFilter"
+                            checked={statusFilter === "active"}
+                            onChange={() => setStatusFilter("active")}
+                        />
+                        Active
+                    </label>
+
+                    <label className={statusFilter === "inactive" ? "active" : ""}>
+                        <input
+                            type="radio"
+                            name="statusFilter"
+                            checked={statusFilter === "inactive"}
+                            onChange={() => setStatusFilter("inactive")}
+                        />
+                        Inactive
+                    </label>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -142,7 +192,7 @@ export default function AdminDashboard() {
                     </thead>
 
                     <tbody>
-                        {users.map((u) => {
+                        {filteredUsers.map((u) => {
                             const isSelf =
                                 currentUser && u.id === currentUser.id;
 
@@ -177,12 +227,9 @@ export default function AdminDashboard() {
                             );
                         })}
 
-                        {users.length === 0 && (
+                        {filteredUsers.length === 0 && (
                             <tr>
-                                <td
-                                    colSpan="6"
-                                    style={{ textAlign: "center" }}
-                                >
+                                <td colSpan="6" style={{ textAlign: "center" }}>
                                     No users found
                                 </td>
                             </tr>

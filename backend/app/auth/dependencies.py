@@ -9,65 +9,92 @@ from app.auth.security import SECRET_KEY, ALGORITHM
 
 security = HTTPBearer()
 
+
 def get_db():
+    """
+    Creates and yields a database session.
+    Ensures the session is closed after request completion.
+    """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db),
-    ) -> User:
+    db: Session = Depends(get_db),) -> User:
     """
-    Authenticates: User or Admin based on JWT token.
-    Returns: The user or admin from the database
-    or else raises error if aunthentication fails
+    Authenticates a request using JWT credentials.
+    Returns the corresponding user from the database.
     """
-    token = credentials.credentials
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or expired token",
-    )
+    email = decode_token(credentials.credentials)
+    return fetch_user(db, email)
+
+
+def decode_token(token: str) -> str:
+    """
+    Decodes a JWT token and extracts the user email (subject).
+    Raises an authentication error if the token is invalid.
+    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        if email is None:
-            raise credentials_exception
+        return payload.get("sub") or raise_auth_error()
     except JWTError:
-        raise credentials_exception
+        raise_auth_error()
 
+
+def fetch_user(db: Session, email: str) -> User:
+    """
+    Fetches a user from the database using the provided email.
+    Raises an authentication error if the user does not exist.
+    """
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        raise credentials_exception
+        raise_auth_error()
     return user
 
 
 def require_active_user(
-    current_user: User = Depends(get_current_user),
-    ) -> User:
+    current_user: User = Depends(get_current_user),) -> User:
     """
-    Checks: Whether a user's current status is active or not
-    Returns: User's Status
+    Ensures the authenticated user account is active.
+    Raises a forbidden error if the account is inactive.
     """
     if not current_user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is inactive",
-        )
+        raise_forbidden("User account is inactive")
     return current_user
 
+
 def require_admin_user(
-    current_user: User = Depends(require_active_user),
-    ) -> User:
+    current_user: User = Depends(require_active_user),) -> User:
     """
-    Checks: Whether an admin's current status is active or not
-    Returns: Admin's Status
+    Ensures the authenticated user has admin privileges.
+    Raises a forbidden error if the user is not an admin.
     """
     if not current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required",
-        )
+        raise_forbidden("Admin privileges required")
     return current_user
+
+
+def raise_auth_error():
+    """
+    Raises a standardized authentication error
+    for invalid or expired JWT tokens.
+    """
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired token",
+    )
+
+
+def raise_forbidden(message: str):
+    """
+    Raises a standardized forbidden error with a custom message.
+    Used for authorization and permission checks.
+    """
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail=message,
+    )

@@ -4,35 +4,45 @@ from app.db.database import SessionLocal
 from app.db.models import User
 from app.auth.security import hash_password
 
-
 def seed_admin():
     """
-    Initializes a User and an Admin Account
+    Seeds the database with a default admin and a normal user.
     """
-    db: Session = SessionLocal()
+    db = SessionLocal()
     try:
-        admin = db.query(User).filter(User.email == "admin@example.com").first()
-        if not admin:
-            admin = User(
-                name="Admin",
-                email="admin@example.com",
-                password_hash=hash_password("admin123"),
-                is_admin=True,
-                is_active=True,
-            )
-            db.add(admin)
-
-        user = db.query(User).filter(User.email == "user@example.com").first()
-        if not user:
-            user = User(
-                name="Normal User",
-                email="user@example.com",
-                password_hash=hash_password("user123"),
-                is_admin=False,
-                is_active=True,
-            )
-            db.add(user)
-
+        seed_user(db, "Admin", "admin@example.com", "admin123", True)
+        seed_user(db, "Normal User", "user@example.com", "user123", False)
         db.commit()
     finally:
         db.close()
+
+
+
+def seed_user(db: Session,name: str,email: str,password: str,is_admin: bool,):
+    """
+    Creates a user if one does not already exist.
+    """
+    if user_exists(db, email):
+        return
+    user = build_user(name, email, password, is_admin)
+    db.add(user)
+
+
+def user_exists(db: Session, email: str) -> bool:
+    """
+    Checks whether a user with the given email exists.
+    """
+    return db.query(User).filter(User.email == email).first() is not None
+
+
+def build_user(name: str,email: str,password: str,is_admin: bool,) -> User:
+    """
+    Builds a User model with hashed credentials.
+    """
+    return User(
+        name=name,
+        email=email,
+        password_hash=hash_password(password),
+        is_admin=is_admin,
+        is_active=True,
+    )

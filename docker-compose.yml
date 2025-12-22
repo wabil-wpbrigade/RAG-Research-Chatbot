@@ -9,6 +9,9 @@ services:
     volumes:
       - ./vector_database:/app/vector_database
       - ./backend/app/data:/app/app/data
+      - email_outbox:/emails
+    depends_on:
+      - email-bot
 
   frontend:
     build: ./frontend
@@ -17,3 +20,15 @@ services:
       - "4173:4173"
     depends_on:
       - backend
+
+  email-bot:
+    build: ./email_bot
+    container_name: email-bot
+    env_file:
+      - .env
+    volumes:
+      - email_outbox:/emails
+    restart: unless-stopped
+
+volumes:
+  email_outbox:

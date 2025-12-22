@@ -25,7 +25,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ✅ CORS CONFIG (THIS FIXES YOUR ERROR)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
