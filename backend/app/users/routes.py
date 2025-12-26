@@ -4,24 +4,12 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.db.schemas import User
-from app.db.database import SessionLocal
+from app.auth.schemas import get_db
 from app.auth.security import hash_password
 from app.auth.dependencies import require_admin_user
 
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-
-def get_db():
-    """
-    Provides a database session for request handling.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 

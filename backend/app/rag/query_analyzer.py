@@ -23,30 +23,30 @@ class QueryAnalyzer:
 
         self.prompt = ChatPromptTemplate.from_template(
             """
-You are a query analysis engine for a Retrieval-Augmented Generation (RAG) system.
+            You are a query analysis engine for a Retrieval-Augmented Generation (RAG) system.
 
-Classify the user's query and return STRICT JSON only.
+            Classify the user's query and return STRICT JSON only.
 
-Allowed values:
-- intent: factual | conceptual | procedural | exploratory
-- complexity: low | medium | high
-- needs_rewrite: true | false
+            Allowed values:
+            - intent: factual | conceptual | procedural | exploratory
+            - complexity: low | medium | high
+            - needs_rewrite: true | false
 
-Guidelines:
-- factual: asks for a specific fact or definition
-- conceptual: asks for explanations or understanding
-- procedural: asks for steps or how-to
-- exploratory: broad, vague, or research-style queries
+            Guidelines:
+            - factual: asks for a specific fact or definition
+            - conceptual: asks for explanations or understanding
+            - procedural: asks for steps or how-to
+            - exploratory: broad, vague, or research-style queries
 
-Rewrite is needed if:
-- the query is vague
-- the query is ambiguous
-- the query is poorly structured
+            Rewrite is needed if:
+            - the query is vague
+            - the query is ambiguous
+            - the query is poorly structured
 
-User query:
-{query}
-"""
-        )
+            User query:
+            {query}
+            """
+            )
 
     def analyze(self, query: str) -> QueryAnalysis:
         response = self.llm.invoke(
