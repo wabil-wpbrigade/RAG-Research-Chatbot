@@ -1,5 +1,4 @@
 import hashlib
-
 from jose import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta

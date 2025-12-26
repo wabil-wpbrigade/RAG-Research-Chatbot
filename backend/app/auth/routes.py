@@ -5,12 +5,12 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 
-from app.db.database import SessionLocal
+from app.auth.schemas import get_db
 from app.email.eml_writer import write_eml_file
 from app.db.schemas import User, MagicLoginToken
 from app.auth.dependencies import require_active_user
 from app.auth.schemas import (MagicLinkRequest,MagicVerifyRequest)
-from app.auth.security import (hash_password,verify_password,create_access_token,hash_token,)
+from app.auth.security import (verify_password,create_access_token,hash_token,)
 
 load_dotenv()
 
@@ -19,17 +19,6 @@ FRONTEND_URL = os.getenv("FRONTEND_URL")
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 MAGIC_TOKEN_EXPIRY_MINUTES = 15
-
-def get_db():
-    """
-    Provides a database session for request handling.
-    Ensures the session is closed after use.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 

@@ -8,11 +8,9 @@ from app.rag.retrieval_policy import determine_top_k
 
 
 
-
-
 class AdaptiveRAGController:
     """
-    Adaptive RAG Orchestrator (Phase 0+)
+    Adaptive RAG Orchestrator
 
     Phase 0 behavior:
     - Delegates to standard RAG

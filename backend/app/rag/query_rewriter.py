@@ -16,23 +16,23 @@ class QueryRewriter:
 
         self.prompt = ChatPromptTemplate.from_template(
             """
-You are a query rewriting assistant for a Retrieval-Augmented Generation (RAG) system.
+            You are a query rewriting assistant for a Retrieval-Augmented Generation (RAG) system.
 
-Rewrite the user's query to be:
-- Clear
-- Specific
-- Optimized for document retrieval
+            Rewrite the user's query to be:
+            - Clear
+            - Specific
+            - Optimized for document retrieval
 
-Rules:
-- Preserve original intent
-- Do NOT add new information
-- Do NOT answer the question
-- Output ONLY the rewritten query text
+            Rules:
+            - Preserve original intent
+            - Do NOT add new information
+            - Do NOT answer the question
+            - Output ONLY the rewritten query text
 
-User query:
-{query}
-"""
-        )
+            User query:
+            {query}
+            """
+            )
 
     def rewrite(self, query: str) -> str:
         try:

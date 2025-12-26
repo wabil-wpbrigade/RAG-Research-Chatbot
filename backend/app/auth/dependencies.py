@@ -4,22 +4,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.db.schemas import User
-from app.db.database import SessionLocal
+from app.auth.schemas import get_db
 from app.auth.security import SECRET_KEY, ALGORITHM
 
 security = HTTPBearer()
-
-
-def get_db():
-    """
-    Creates and yields a database session.
-    Ensures the session is closed after request completion.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def get_current_user(
