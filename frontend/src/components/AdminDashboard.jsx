@@ -7,58 +7,72 @@ import {
 } from "../api/api";
 import "../styles/AdminDashboard.css";
 
+/**
+ * Admin dashboard for managing users and roles.
+ */
 export default function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
-
-    // 🔹 Filter state
     const [statusFilter, setStatusFilter] = useState("all");
-    // "all" | "active" | "inactive"
 
-    // 🔹 Create user form
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
     const [error, setError] = useState("");
 
+    /**
+     * Fetch all users from the backend.
+     */
     async function loadUsers() {
         try {
-            const data = await fetchUsers(localStorage.getItem("token"));
-            setUsers(data);
+            setUsers(await fetchUsers(localStorage.getItem("token")));
         } catch {
             setError("Failed to load users");
         }
     }
 
+    /**
+     * Fetch the currently authenticated user.
+     */
     async function loadCurrentUser() {
         try {
-            const me = await getMe();
-            setCurrentUser(me);
+            setCurrentUser(await getMe());
         } catch {
             setError("Failed to load current user");
         }
     }
 
+    /**
+     * Reset create-user form state.
+     */
+    function resetForm() {
+        setName("");
+        setEmail("");
+        setPassword("");
+        setIsAdmin(false);
+    }
+
+    /**
+     * Handle user creation form submission.
+     */
     async function handleCreate(e) {
         e.preventDefault();
         setError("");
-
         try {
             await createUser(name, email, password, isAdmin);
-            setName("");
-            setEmail("");
-            setPassword("");
-            setIsAdmin(false);
+            resetForm();
             loadUsers();
         } catch (err) {
             setError(err.message);
         }
     }
 
+    /**
+     * Toggle a user's active status.
+     */
     async function toggle(id) {
         setError("");
-
         try {
             await toggleUserActive(localStorage.getItem("token"), id);
             loadUsers();
@@ -67,17 +81,21 @@ export default function AdminDashboard() {
         }
     }
 
+    /**
+     * Apply status-based user filtering.
+     */
+    function filterUsers(list) {
+        if (statusFilter === "active") return list.filter(u => u.is_active);
+        if (statusFilter === "inactive") return list.filter(u => !u.is_active);
+        return list;
+    }
+
     useEffect(() => {
         loadUsers();
         loadCurrentUser();
     }, []);
 
-    // 🔹 Apply filter
-    const filteredUsers = users.filter((u) => {
-        if (statusFilter === "active") return u.is_active;
-        if (statusFilter === "inactive") return !u.is_active;
-        return true;
-    });
+    const filteredUsers = filterUsers(users);
 
     return (
         <div className="admin-container">
@@ -96,7 +114,6 @@ export default function AdminDashboard() {
                         onChange={(e) => setName(e.target.value)}
                         required
                     />
-
                     <input
                         placeholder="Email"
                         value={email}
@@ -119,7 +136,6 @@ export default function AdminDashboard() {
                     <label className={!isAdmin ? "active" : ""}>
                         <input
                             type="radio"
-                            name="role"
                             checked={!isAdmin}
                             onChange={() => setIsAdmin(false)}
                         />
@@ -129,7 +145,6 @@ export default function AdminDashboard() {
                     <label className={isAdmin ? "active" : ""}>
                         <input
                             type="radio"
-                            name="role"
                             checked={isAdmin}
                             onChange={() => setIsAdmin(true)}
                         />
@@ -141,44 +156,28 @@ export default function AdminDashboard() {
                     Create User
                 </button>
             </form>
-            {/* 🔹 USER TABLE */}
+
             <div className="table-card">
                 <h3>Users</h3>
 
-                {/* 🔹 Status Filter */}
                 <div className="filter-bar">
                     <span className="filter-label">Status:</span>
 
-                    <label className={statusFilter === "all" ? "active" : ""}>
-                        <input
-                            type="radio"
-                            name="statusFilter"
-                            checked={statusFilter === "all"}
-                            onChange={() => setStatusFilter("all")}
-                        />
-                        All
-                    </label>
-
-                    <label className={statusFilter === "active" ? "active" : ""}>
-                        <input
-                            type="radio"
-                            name="statusFilter"
-                            checked={statusFilter === "active"}
-                            onChange={() => setStatusFilter("active")}
-                        />
-                        Active
-                    </label>
-
-                    <label className={statusFilter === "inactive" ? "active" : ""}>
-                        <input
-                            type="radio"
-                            name="statusFilter"
-                            checked={statusFilter === "inactive"}
-                            onChange={() => setStatusFilter("inactive")}
-                        />
-                        Inactive
-                    </label>
+                    {["all", "active", "inactive"].map((s) => (
+                        <label
+                            key={s}
+                            className={statusFilter === s ? "active" : ""}
+                        >
+                            <input
+                                type="radio"
+                                checked={statusFilter === s}
+                                onChange={() => setStatusFilter(s)}
+                            />
+                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </label>
+                    ))}
                 </div>
+
                 <table>
                     <thead>
                         <tr>
@@ -193,8 +192,7 @@ export default function AdminDashboard() {
 
                     <tbody>
                         {filteredUsers.map((u) => {
-                            const isSelf =
-                                currentUser && u.id === currentUser.id;
+                            const isSelf = currentUser && u.id === currentUser.id;
 
                             return (
                                 <tr key={u.id}>
@@ -205,22 +203,12 @@ export default function AdminDashboard() {
                                     <td>{u.is_active ? "Yes" : "No"}</td>
                                     <td>
                                         <button
-                                            className={
-                                                u.is_active
-                                                    ? "danger"
-                                                    : "success"
-                                            }
+                                            className={u.is_active ? "danger" : "success"}
                                             disabled={isSelf}
-                                            title={
-                                                isSelf
-                                                    ? "You cannot deactivate your own account"
-                                                    : ""
-                                            }
+                                            title={isSelf ? "You cannot deactivate your own account" : ""}
                                             onClick={() => toggle(u.id)}
                                         >
-                                            {u.is_active
-                                                ? "Deactivate"
-                                                : "Activate"}
+                                            {u.is_active ? "Deactivate" : "Activate"}
                                         </button>
                                     </td>
                                 </tr>

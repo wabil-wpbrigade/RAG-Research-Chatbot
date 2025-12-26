@@ -1,24 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.users.schemas import CreateUserRequest
 from sqlalchemy.exc import IntegrityError
-from pydantic import BaseModel, EmailStr
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.db.schemas import User
 from app.db.database import SessionLocal
-from app.db.models import User
 from app.auth.security import hash_password
 from app.auth.dependencies import require_admin_user
 
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-class CreateUserRequest(BaseModel):
-    """
-    Request schema for creating a user or admin account.
-    """
-    name: str
-    email: EmailStr
-    password: str
-    is_admin: bool = False
 
 
 

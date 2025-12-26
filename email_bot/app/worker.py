@@ -1,51 +1,73 @@
 import os
 import time
-from app.config import EMAIL_OUTBOX_PATH, SCAN_INTERVAL_SECONDS
+
 from app.smtp_client import SMTPClient
 from app.eml_parser import parse_eml_file
+from app.config import EMAIL_OUTBOX_PATH, SCAN_INTERVAL_SECONDS
 
 
 def process_outbox():
     """
-    Process all pending .eml files in the outbox directory.
-
-    Each valid email file is parsed, sent via SMTP, and removed
-    upon successful delivery. Failed files remain in the outbox
-    for retry in the next cycle.
+    Processes all pending .eml files in the outbox directory.
+    Sends emails via SMTP and removes files upon success.
     """
     smtp = SMTPClient()
-
-    files = [
-        f for f in os.listdir(EMAIL_OUTBOX_PATH)
-        if f.lower().endswith(".eml")
-    ]
-
-    for filename in files:
-        file_path = os.path.join(EMAIL_OUTBOX_PATH, filename)
-
-        try:
-            message = parse_eml_file(file_path)
-            smtp.send(message)
-
-            os.remove(file_path)
-            print(f"[✓] Sent and removed: {filename}")
-
-        except Exception as e:
-            print(f"[!] Failed to process {filename}: {e}")
-            # File remains for retry
-
+    for file_path in eml_files():
+        handle_email_file(smtp, file_path)
     smtp.close()
+
 
 
 def run_daemon():
     """
-    Run the email worker in daemon mode.
-
-    Continuously monitors the email outbox directory and processes
-    pending emails at a fixed interval defined in configuration.
+    Runs the email worker in daemon mode.
+    Periodically scans and processes the outbox.
     """
     print("[*] Email bot started. Watching outbox...")
-
     while True:
         process_outbox()
         time.sleep(SCAN_INTERVAL_SECONDS)
+
+
+
+
+def eml_files() -> list[str]:
+    """
+    Returns a list of absolute paths to .eml files in the outbox.
+    """
+    return [
+        os.path.join(EMAIL_OUTBOX_PATH, f)
+        for f in os.listdir(EMAIL_OUTBOX_PATH)
+        if f.lower().endswith(".eml")
+    ]
+
+
+def handle_email_file(smtp: SMTPClient, file_path: str):
+    """
+    Parses, sends, and deletes an email file.
+    Leaves the file intact if processing fails.
+    """
+    try:
+        send_email_file(smtp, file_path)
+        remove_file(file_path)
+    except Exception as e:
+        print(f"[!] Failed to process {file_path}: {e}")
+
+
+
+def send_email_file(smtp: SMTPClient, file_path: str):
+    """
+    Parses an email file and sends it via SMTP.
+    """
+    message = parse_eml_file(file_path)
+    smtp.send(message)
+
+
+
+def remove_file(path: str):
+    """
+    Removes a file from disk.
+    """
+    os.remove(path)
+    print(f"[✓] Sent and removed: {os.path.basename(path)}")
+

@@ -1,5 +1,6 @@
-from app.config import validate_config
 from app.worker import run_daemon
+from app.config import validate_config
+
 
 
 def main():

@@ -1,10 +1,10 @@
 import os
 from typing import Any, List, Tuple
 
-from langchain_classic.chains import create_retrieval_chain
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 
 from app.rag.llm_prompt import llm, prompt
 from app.rag.vectorstore import retriever_database

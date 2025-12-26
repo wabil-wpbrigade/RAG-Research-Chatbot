@@ -1,4 +1,5 @@
 import smtplib
+
 from email.message import EmailMessage
 from app.config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
 

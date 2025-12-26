@@ -9,25 +9,19 @@ EMAIL_OUTBOX_PATH = os.getenv("EMAIL_OUTBOX_PATH", "/emails")
 SCAN_INTERVAL_SECONDS = int(os.getenv("SCAN_INTERVAL_SECONDS", "5"))
 
 
-def validate_config():
-    """
-    Validate required environment variables.
-
-    Ensures that all mandatory configuration values needed to send emails
-    (SMTP host, username, and password) are present. The application
-    will fail fast at startup if any required configuration is missing.
-
-    Raises:
-        RuntimeError: If one or more required environment variables are missing.
-    """
-    missing = []
-    for key, value in {
+def required_env_vars() -> dict:
+    return {
         "SMTP_HOST": SMTP_HOST,
         "SMTP_USER": SMTP_USER,
         "SMTP_PASSWORD": SMTP_PASSWORD,
-    }.items():
-        if not value:
-            missing.append(key)
+    }
 
+
+def find_missing(vars_map: dict) -> list[str]:
+    return [key for key, value in vars_map.items() if not value]
+
+
+def validate_config() -> None:
+    missing = find_missing(required_env_vars())
     if missing:
         raise RuntimeError(f"Missing required env vars: {', '.join(missing)}")

@@ -1,4 +1,4 @@
-from app.db import models
+from app.db import schemas
 from fastapi import FastAPI
 from app.db.database import engine
 from app.db.seed import seed_admin
@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 1️⃣ Create DB tables
-    models.Base.metadata.create_all(bind=engine)
+    schemas.Base.metadata.create_all(bind=engine)
 
     # 2️⃣ Seed default admin (idempotent)
     seed_admin()
