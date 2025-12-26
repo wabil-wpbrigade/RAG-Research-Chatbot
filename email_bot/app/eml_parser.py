@@ -1,6 +1,6 @@
+from email import policy
 from email import message_from_bytes
 from email.message import EmailMessage
-from email import policy
 
 
 def parse_eml_file(path: str) -> EmailMessage:
@@ -22,12 +22,8 @@ def parse_eml_file(path: str) -> EmailMessage:
     """
     with open(path, "rb") as f:
         msg = message_from_bytes(f.read(), policy=policy.default)
-
-    # Now this IS an EmailMessage
     if not isinstance(msg, EmailMessage):
         raise ValueError("Invalid EML file")
-
-    # Validate headers
     if not msg["To"] or not msg["From"] or not msg["Subject"]:
         raise ValueError("Invalid EML file")
 

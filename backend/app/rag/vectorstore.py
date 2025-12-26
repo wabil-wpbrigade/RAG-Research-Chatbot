@@ -1,7 +1,7 @@
 # ruff: noqa: I001
 from langchain_chroma import Chroma
-from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_openai import OpenAIEmbeddings
+from langchain_core.vectorstores import VectorStoreRetriever
 
 from app.rag.injestion import vector_database_path
 

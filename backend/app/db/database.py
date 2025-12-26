@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from pathlib import Path
 
 DATABASE_URL = "sqlite:///app/data/users.db"
 

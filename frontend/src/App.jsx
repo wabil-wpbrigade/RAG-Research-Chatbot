@@ -1,42 +1,65 @@
 import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { getMe } from "./api/api";
-import Login from "./pages/Login";
-import MagicLogin from "./pages/MagicLogin";
+import RequestMagicLink from "./pages/RequestMagicLink";
+import VerifyMagicLink from "./pages/VerifyMagicLink";
 import AdminDashboard from "./components/AdminDashboard";
 import RagChat from "./components/RagChat";
 import "./styles/App.css";
 
+/**
+ * Root application component.
+ *
+ * Handles authentication restoration, routing,
+ * and top-level UI state such as tabs and logout.
+ */
 function App() {
+  /** Auth & UI state */
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("chat");
 
-
-  // Restore user session from stored token
+  /**
+   * Restore user session using stored JWT token.
+   */
   async function loadUser() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    const token = getStoredToken();
+    if (!token) return stopLoading();
+    await fetchCurrentUser();
+  }
 
+  /**
+   * Fetch authenticated user from backend.
+   */
+  async function fetchCurrentUser() {
     try {
-      const me = await getMe(token);
-      setUser(me);
+      setUser(await getMe());
     } catch {
-      localStorage.removeItem("token");
-      setUser(null);
+      clearSession();
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }
 
-  // Clear session and log out
-
+  /**
+   * Clear auth session and log out user.
+   */
   function logout() {
-    localStorage.removeItem("token");
+    clearSession();
     setUser(null);
+  }
+
+  /** Helpers */
+  function getStoredToken() {
+    return localStorage.getItem("token");
+  }
+
+  function clearSession() {
+    localStorage.removeItem("token");
+  }
+
+  function stopLoading() {
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -48,7 +71,7 @@ function App() {
   return (
     <Routes>
       {/* Magic link verification */}
-      <Route path="/auth/magic" element={<MagicLogin />} />
+      <Route path="/auth/magic" element={<VerifyMagicLink />} />
 
       {/* Main app */}
       <Route
@@ -56,7 +79,7 @@ function App() {
         element={
           !user ? (
             <div className="center">
-              <Login onLogin={loadUser} />
+              <RequestMagicLink onLogin={loadUser} />
             </div>
           ) : (
             <div className="app-bg">
@@ -71,23 +94,11 @@ function App() {
                   </button>
                 </header>
 
-                <div className="tabs">
-                  <button
-                    className={`tab ${activeTab === "chat" ? "active" : ""}`}
-                    onClick={() => setActiveTab("chat")}
-                  >
-                    Chat
-                  </button>
-
-                  {user.is_admin && (
-                    <button
-                      className={`tab ${activeTab === "admin" ? "active" : ""}`}
-                      onClick={() => setActiveTab("admin")}
-                    >
-                      Admin
-                    </button>
-                  )}
-                </div>
+                <Tabs
+                  user={user}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                />
 
                 <section className="section">
                   {activeTab === "chat" && <RagChat />}
@@ -101,6 +112,43 @@ function App() {
         }
       />
     </Routes>
+  );
+}
+
+/**
+ * Tab navigation component.
+ */
+function Tabs({ user, activeTab, setActiveTab }) {
+  return (
+    <div className="tabs">
+      <TabButton
+        label="Chat"
+        active={activeTab === "chat"}
+        onClick={() => setActiveTab("chat")}
+      />
+
+      {user.is_admin && (
+        <TabButton
+          label="Admin"
+          active={activeTab === "admin"}
+          onClick={() => setActiveTab("admin")}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Reusable tab button.
+ */
+function TabButton({ label, active, onClick }) {
+  return (
+    <button
+      className={`tab ${active ? "active" : ""}`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
   );
 }
 

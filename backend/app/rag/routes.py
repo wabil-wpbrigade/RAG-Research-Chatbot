@@ -1,8 +1,8 @@
+from app.db.schemas import User
 from fastapi import APIRouter, Depends
+from app.rag.schemas import RAGQueryRequest
 from app.auth.dependencies import require_active_user
 from app.rag.controller import adaptive_rag_controller
-from app.db.models import User
-from app.rag.schemas import RAGQueryRequest
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 

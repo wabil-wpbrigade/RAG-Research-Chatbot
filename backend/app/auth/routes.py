@@ -1,20 +1,23 @@
 import os, secrets
-from datetime import datetime, timedelta, timezone
+
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 
 from app.db.database import SessionLocal
-from app.db.models import User, MagicLoginToken
-from app.auth.security import (hash_password,verify_password,create_access_token,hash_token,)
-from app.auth.schemas import (SignupRequest,MagicLinkRequest,MagicVerifyRequest,)
-from app.auth.dependencies import require_active_user
 from app.email.eml_writer import write_eml_file
+from app.db.schemas import User, MagicLoginToken
+from app.auth.dependencies import require_active_user
+from app.auth.schemas import (MagicLinkRequest,MagicVerifyRequest)
+from app.auth.security import (hash_password,verify_password,create_access_token,hash_token,)
 
 load_dotenv()
+
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
 MAGIC_TOKEN_EXPIRY_MINUTES = 15
 
 def get_db():
@@ -28,16 +31,6 @@ def get_db():
     finally:
         db.close()
 
-
-@router.post("/signup")
-def signup(data: SignupRequest, db: Session = Depends(get_db)):
-    """
-    Registers a new user account.
-    Raises an error if the email already exists.
-    """
-    ensure_email_available(db, data.email)
-    create_user(db, data)
-    return {"message": "Account created successfully"}
 
 
 @router.post("/magic/request")
@@ -112,21 +105,6 @@ def ensure_email_available(db: Session, email: str):
     """
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
-
-
-def create_user(db: Session, data: SignupRequest):
-    """
-    Creates and persists a new user record.
-    """
-    user = User(
-        name=data.name,
-        email=data.email,
-        hashed_password=hash_password(data.password),
-        is_admin=False,
-        is_active=True,
-    )
-    db.add(user)
-    db.commit()
 
 
 def issue_token(user: User):
