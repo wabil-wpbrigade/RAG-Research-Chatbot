@@ -10,7 +10,7 @@ from app.email.eml_writer import write_eml_file
 from app.db.schemas import User, MagicLoginToken
 from app.auth.dependencies import require_active_user
 from app.auth.schemas import (MagicLinkRequest,MagicVerifyRequest)
-from app.auth.security import (verify_password,create_access_token,hash_token,)
+from app.auth.security import (create_access_token,hash_token,)
 
 load_dotenv()
 
@@ -66,17 +66,6 @@ def fetch_user_by_email(db: Session, email: str) -> User:
     return user
 
 
-def validate_password(password: str, user: User):
-    """
-    Validates a user's password.
-    """
-    if not verify_password(password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
-
-
 def ensure_active(user: User):
     """
     Ensures a user account is active.
@@ -86,14 +75,6 @@ def ensure_active(user: User):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive",
         )
-
-
-def ensure_email_available(db: Session, email: str):
-    """
-    Ensures no existing account uses the provided email.
-    """
-    if db.query(User).filter(User.email == email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
 
 
 def issue_token(user: User):
@@ -128,8 +109,7 @@ def validate_magic_token(db: Session, raw_token: str) -> MagicLoginToken:
     Validates a magic token and ensures it is unused and unexpired.
     """
     token = db.query(MagicLoginToken).filter(
-        MagicLoginToken.token_hash == hash_token(raw_token)
-    ).first()
+        MagicLoginToken.token_hash == hash_token(raw_token)).first()
     if not token or token.used or is_expired(token.expires_at):
         raise HTTPException(status_code=400, detail="Invalid or expired magic link")
     return token

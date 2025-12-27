@@ -11,11 +11,6 @@ from app.rag.retrieval_policy import determine_top_k
 class AdaptiveRAGController:
     """
     Adaptive RAG Orchestrator
-
-    Phase 0 behavior:
-    - Delegates to standard RAG
-    - No adaptive logic yet
-    - Structure prepared for future extensions
     """
     def __init__(self):
         self.query_analyzer = QueryAnalyzer()
